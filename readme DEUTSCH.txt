@@ -41,7 +41,7 @@ Nach dem Einloggen schaltet das Skript automatisch auf "Spielen". Beim Ausloggen
 ----------------------------------------------------------------------------------------
 
 Veröffentlichungshinweise:
-	4.0
+	4.1
 		- Update für Classic Ära server
 	3.13
 		- Bessere Social contract Erkennung.

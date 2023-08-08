@@ -45,7 +45,7 @@ After logging in, the script automatically switches to "Play" mode. When logging
 RELEASE NOTES
 
 Release notes:
-	4.0
+	4.1
 		- Update for Classic Era servers
 	3.13
 		- Better Social contract detection.
