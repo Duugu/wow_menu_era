@@ -1,4 +1,4 @@
 ## Interface: 11403
-## Title: wow menu era 4.1
-## Version: 4.1
+## Title: wow menu era 4.2
+## Version: 4.2
 ## X-Curse-Project-ID: 
