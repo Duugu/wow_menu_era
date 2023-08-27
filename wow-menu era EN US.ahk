@@ -13,6 +13,72 @@ global scriptName := SubStr(A_ScriptName, 1, InStr(A_ScriptName, ".", False, -1)
 gosub InitMenu
 SetTimer, CheckMode, 1000
 
+global gInQueuePlayed := false
+SetTimer, WatchInQueue, 3663
+WatchInQueue:
+
+	if(global Mode == 1)
+	{
+		if(global gInQueue == true)
+		{
+			if(gCurrentMenuItem.name == "main_menu")
+			{
+				SoundPlay, % A_WorkingDir . "\soundfiles\sound-notification6_de.mp3"
+
+				if(global gInQueuePlayed == false)
+				{
+					global gInQueuePlayed := true
+					PlayUtterance("server_full_waiting_in_queue")
+					Sleep, 3000
+				}
+
+				tValue := true
+
+				tRGBColor := GetColorAtUiPos(9799, 450)
+				if (IsColorRange(tRGBColor.r, 255) = true and IsColorRange(tRGBColor.g, 0) = true and IsColorRange(tRGBColor.b, 0) = true)
+				{
+					;tValue := true
+				}
+				else
+				{
+					tValue := false
+				}
+
+				tRGBColor := GetColorAtUiPos(10194, 450)
+				if (IsColorRange(tRGBColor.r, 255) = true and IsColorRange(tRGBColor.g, 0) = true and IsColorRange(tRGBColor.b, 0) = true)
+				{
+					;tValue := true
+				}
+				else
+				{
+					tValue := false
+				}
+
+				tRGBColor := GetColorAtUiPos(445, 450)
+				if (IsColorRange(tRGBColor.r, 0) = true and IsColorRange(tRGBColor.g, 20) = true and IsColorRange(tRGBColor.b, 0) = true)
+				{
+					;tValue := true
+				}
+				else
+				{
+					tValue := false
+				}
+
+				if(tValue == false)
+				{
+					global gInQueue := false
+					global gInQueuePlayed := false
+					gosub InitMenu
+
+					sleep, 2000
+					InitLogin()
+				}
+			}
+		}
+	}
+
+return
+
 ;------------------------------------------------------------------------------------------
 ; globals
 ;------------------------------------------------------------------------------------------
@@ -34,6 +100,7 @@ global gIsChecking
 global tPopupClosed
 
 global Mode := -1
+global gInQueue := false
 
 SwitchToMode_1()
 
@@ -239,6 +306,12 @@ InitLogin()
 		AcceptContract()
 	}
 
+	if(IsRealmQueue() == true)
+	{
+		gosub InitQueueMenu
+		return
+	}
+
 	if(IsCharSelectionScreen() = true)
 	{
 		WaitForX(4, 500)
@@ -408,16 +481,29 @@ InitLogin()
 			}
 		}
 	}
+	else if(IsRealmQueue() == true)
+	{
+		gosub InitQueueMenu
+		return
+	}
 
 	if(IsCharSelectionScreen() != true)
 	{
-		gosub CheckMode
-		if(Mode != 1)
+		if(IsRealmQueue() == true)
 		{
+			gosub InitQueueMenu
 			return
 		}
-		goto, StartOver
-		;InitLogin()
+		else
+		{
+			gosub CheckMode
+			if(Mode != 1)
+			{
+				return
+			}
+			goto, StartOver
+			;InitLogin()
+		}
 	}
 	else if(gNumberOfCharsOnCurrentRealm = -1)
 	{
@@ -489,9 +575,42 @@ ClosePopUps()
 }
 
 ;------------------------------------------------------------------------------------------
-InitMenu:
-	global gCharUIPositions := {1:{x:-45,y:106},2:{x:-45,y:162},3:{x:-45,y:218},4:{x:-45,y:274},5:{x:-45,y:330},6:{x:-45,y:386},7:{x:-45,y:442},8:{x:-45,y:498},9:{x:-45,y:554},10:{x:-45,y:610}}
+InitQueueMenu:
+	if(gMainMenu.childs[1].name != "switch_server")
+	{
+		LoadData()
 
+		global gMainMenuBackup := gMainMenu
+
+
+		global gMainMenu := new baseMenuEntryObject
+		gMainMenu.name := "main_menu"
+		gMainMenu.parent := ""
+		gMainMenu.childs := []
+
+
+		;MsgBox % gMainMenuBackup.childs[4].name
+
+		;menu item 1
+		tMainItemN := 1
+		gMainMenu.childs[tMainItemN] := gMainMenuBackup.childs[4]
+		gMainMenu.childs[tMainItemN].parent := gMainMenu
+		gMainMenu.childs[tMainItemN].name := "switch_server"
+		UpdateChilds(gMainMenu.childs[1])
+
+		UpdateChilds(gMainMenu)
+
+		gCurrentMenuItem := gMainMenu
+		gMainMenu.onEnter()
+	}
+
+	gIgnoreKeyPress := false
+return
+
+;------------------------------------------------------------------------------------------
+InitMenu:
+	global gInQueue == false
+	global gCharUIPositions := {1:{x:-45,y:106},2:{x:-45,y:162},3:{x:-45,y:218},4:{x:-45,y:274},5:{x:-45,y:330},6:{x:-45,y:386},7:{x:-45,y:442},8:{x:-45,y:498},9:{x:-45,y:554},10:{x:-45,y:610}}
 
 	global tRealmLangs := {1:{name:"USA_West",x:450,y:636},2:{name:"USA_East",x:9827,y:636},3:{name:"Oceanic",x:9899,y:636}}
 
@@ -689,41 +808,78 @@ if(tRaces[tRaceNumber].classes[tClassNumber] != "NV")
 							PlayUtterance("switching_to_server")
 							sleep 1500
 
-							;test if on char selection screen
-							if(IsCharSelectionScreen() != true)
-							{
-								;if not > init to char sel
-								;Send {Esc}
-								InitLogin()
-							}
 
-							;click on "select realm"
-							tmp := UiToScreenNEW(-191, 51)
-							MouseMove, tmp.X, tmp.Y, 0
-							Send {Click}
-
-							;wait for realm selection screen
-							tTimeout := 0
-							while(IsRealmSelectionScreen() != true)
+							if(IsRealmQueue() == true)
 							{
-								gosub CheckMode
-								if(Mode != 1)
+								;from queue
+								;click on "select realm"
+								tmp := UiToScreenNEW(10194, 450)
+								MouseMove, tmp.X, tmp.Y, 0
+								Send {Click}
+
+								;wait for realm selection screen
+								tTimeout := 0
+								while(IsRealmSelectionScreen() != true)
 								{
+									gosub CheckMode
+									if(Mode != 1)
+									{
+										return
+									}
+
+									tTimeout := tTimeout + 1
+									WaitForX(1, 500)
+									if(tTimeout > 60)
+									{
+										PlayUtterance("fail_connection_restart")
+										sleep 2000
+										gIgnoreKeyPress := false
+										SwitchToMode_1()
+										Pause
 									return
-								}
-
-								tTimeout := tTimeout + 1
-								WaitForX(1, 500)
-								if(tTimeout > 60)
-								{
-									PlayUtterance("fail_connection_restart")
-									sleep 2000
-									gIgnoreKeyPress := false
-									SwitchToMode_1()
-									Pause
-								return
+									}
 								}
 							}
+							else
+							{
+								;from css
+								;test if on char selection screen
+								if(IsCharSelectionScreen() != true)
+								{
+									;if not > init to char sel
+									;Send {Esc}
+									InitLogin()
+								}
+
+								;click on "select realm"
+								tmp := UiToScreenNEW(-191, 51)
+								MouseMove, tmp.X, tmp.Y, 0
+								Send {Click}
+
+								;wait for realm selection screen
+								tTimeout := 0
+								while(IsRealmSelectionScreen() != true)
+								{
+									gosub CheckMode
+									if(Mode != 1)
+									{
+										return
+									}
+
+									tTimeout := tTimeout + 1
+									WaitForX(1, 500)
+									if(tTimeout > 60)
+									{
+										PlayUtterance("fail_connection_restart")
+										sleep 2000
+										gIgnoreKeyPress := false
+										SwitchToMode_1()
+										Pause
+									return
+									}
+								}
+							}
+
 
 							;click on lang tab
 							tmp := UiToScreenNEW(tRealmLangs[langNumber].x, tRealmLangs[langNumber].y)
@@ -743,75 +899,85 @@ if(tRaces[tRaceNumber].classes[tClassNumber] != "NV")
 							Send {Click}
 							WaitForX(1, 500)
 
-
-
-
-							;click on server
-							tmp := UiToScreenNEW(9735, 368)
-							MouseMove, tmp.X, tmp.Y, 0
-							WaitForX(1, 500)
-
-							Loop % (4)
+							if(IsRealmListScrollbar() == true)
 							{
-								Loop % (20)
-								{
-									Click, WheelUp
-									Sleep, 30
-								}
-								WaitForX(1, 20)
-							}
-
-
-							tNumberOfFullPages := (Ceil(ObjMaxIndex(tServerNames[langNumber]) / 17) - 1)
-							tServerOnPageNumber := (Ceil(serverNumber / 17))
-
-							tEntryNumberInList := 0
-							tNumberOfDownEntries := 0
-							if(tServerOnPageNumber > tNumberOfFullPages)
-							{
-								tNumberOfDownEntries := ((tServerOnPageNumber - 2) * 17) + (serverNumber - (tNumberOfFullPages * 17))
-
-								tEntryNumberInList := 17 ;serverNumber - (tNumberOfFullPages * 17)
-
-
-							}
-							else
-							{
-								;full pages down
-								tEntryNumberInList := serverNumber - ((tServerOnPageNumber - 1) * 17)
-								tNumberOfDownEntries := ((tServerOnPageNumber - 1) * 17)
-
-							}
-
-							Loop % tNumberOfDownEntries
-							{
-								Click, WheelDown
-								Sleep, 30
-
-							}
-
-							WaitForX(1, 100)
-
-
-							;tmp := UiToScreenNEW(tServerNames[langNumber][serverNumber].x,tServerNames[langNumber][serverNumber].y)
-							tmp := UiToScreenNEW(tServerNames[langNumber][serverNumber].x,(tServerNames[langNumber][tEntryNumberInList].y))
-							if(tServerOnPageNumber > tNumberOfFullPages && serverNumber == ObjMaxIndex(tServerNames[langNumber]))
-							{
-								MouseMove, tmp.X, tmp.Y + 10, 0
-							}
-							else
-							{
+								;click on server with scrollable list
+								tmp := UiToScreenNEW(9735, 368)
 								MouseMove, tmp.X, tmp.Y, 0
-							}
+								WaitForX(1, 500)
 
-							WaitForX(1, 100)
-							Send {Click}
-							WaitForX(1, 500)
+								Loop % (4)
+								{
+									Loop % (20)
+									{
+										Click, WheelUp
+										Sleep, 30
+									}
+									WaitForX(1, 20)
+								}
+
+
+								tNumberOfFullPages := (Ceil(ObjMaxIndex(tServerNames[langNumber]) / 17) - 1)
+								tServerOnPageNumber := (Ceil(serverNumber / 17))
+
+								tEntryNumberInList := 0
+								tNumberOfDownEntries := 0
+								if(tServerOnPageNumber > tNumberOfFullPages)
+								{
+									tNumberOfDownEntries := ((tServerOnPageNumber - 2) * 17) + (serverNumber - (tNumberOfFullPages * 17))
+
+									tEntryNumberInList := 17 ;serverNumber - (tNumberOfFullPages * 17)
+
+
+								}
+								else
+								{
+									;full pages down
+									tEntryNumberInList := serverNumber - ((tServerOnPageNumber - 1) * 17)
+									tNumberOfDownEntries := ((tServerOnPageNumber - 1) * 17)
+
+								}
+
+								Loop % tNumberOfDownEntries
+								{
+									Click, WheelDown
+									Sleep, 30
+
+								}
+
+								WaitForX(1, 100)
+
+
+								;tmp := UiToScreenNEW(tServerNames[langNumber][serverNumber].x,tServerNames[langNumber][serverNumber].y)
+								tmp := UiToScreenNEW(tServerNames[langNumber][serverNumber].x,(tServerNames[langNumber][tEntryNumberInList].y))
+								if(tServerOnPageNumber > tNumberOfFullPages && serverNumber == ObjMaxIndex(tServerNames[langNumber]))
+								{
+									MouseMove, tmp.X, tmp.Y + 10, 0
+								}
+								else
+								{
+									MouseMove, tmp.X, tmp.Y, 0
+								}
+
+								WaitForX(1, 100)
+								Send {Click}
+								WaitForX(1, 500)
+							}
+							else
+							{
+								WaitForX(1, 500)
+								;click on server with no scrollable list
+								tmp := UiToScreenNEW(tServerNames[langNumber][serverNumber].x,tServerNames[langNumber][serverNumber].y)
+								MouseMove, tmp.X, tmp.Y, 0
+								Send {Click}
+							}
 
 							;click on ok
 							tmp := UiToScreenNEW(10165, 606)
 							MouseMove, tmp.X, tmp.Y, 0
 							Send {Click}
+
+
 
 							WaitForX(4, 500)
 							if(IsHighPopServerWarning() = true)
@@ -822,8 +988,22 @@ if(tRaces[tRaceNumber].classes[tClassNumber] != "NV")
 								WaitForX(1, 500)
 							}
 
+							MouseMove, tmp.X, tmp.Y - 100, 0
+
+							WaitForX(4, 500)
+
+							;click away any hc warning
+							if(IsRealmQueue() != true)
+							{
+								WaitForX(4, 500)
+								tmp := UiToScreenNEW(9942, 442)
+								MouseMove, tmp.X, tmp.Y, 0
+								Send {Click}
+							}
+
 							;test if on char selection screen
 							tTimeout := 0
+							twiccounter := 20
 							while(IsCharSelectionScreen() != true)
 							{
 								gosub CheckMode
@@ -832,25 +1012,36 @@ if(tRaces[tRaceNumber].classes[tClassNumber] != "NV")
 									return
 								}
 
-								if(IsCharCreationScreen() = true)
+								;test if queue
+								if(IsRealmQueue() == true)
 								{
-									;not chars > back to char sel
-									tmp := UiToScreenNEW(-160, 749)
-									MouseMove, tmp.X, tmp.Y, 0
-									Send {Click}
-									WaitForX(1, 500)
+									PlayUtterance("server_full_waiting_in_queue")
+									Sleep, 4500
+									gosub InitQueueMenu
+									return
 								}
-
-								tTimeout := tTimeout + 1
-								WaitForX(1, 500)
-								if(tTimeout > 60)
+								else
 								{
-									PlayUtterance("fail_connection_restart")
-									sleep 2000
-									gIgnoreKeyPress := false
-									SwitchToMode_1()
-									Pause
-								return
+									if(IsCharCreationScreen() = true)
+									{
+										;not chars > back to char sel
+										tmp := UiToScreenNEW(-160, 749)
+										MouseMove, tmp.X, tmp.Y, 0
+										Send {Click}
+										WaitForX(1, 500)
+									}
+
+									tTimeout := tTimeout + 1
+									WaitForX(1, 500)
+									if(tTimeout > 20)
+									{
+										PlayUtterance("fail_connection_restart")
+										sleep 2000
+										gIgnoreKeyPress := false
+										SwitchToMode_1()
+										Pause
+									return
+									}
 								}
 							}
 
@@ -860,10 +1051,14 @@ if(tRaces[tRaceNumber].classes[tClassNumber] != "NV")
 							PlayUtterance("switched_to_Server")
 							sleep 1200
 
+							gosub InitMenu
+							UpdateCharacterMenu()
+
 							;jump to char selection
 							gMainMenu.childs[1].onEnter()
 
 							gIgnoreKeyPress := false
+
 						}
 						gMainMenu.childs[tMainItemN].childs[tLangNumber].childs[tRealmNumber].onAction := Func("gMainMenuchilds4ChildsXChildsYAction").Bind(gMainMenu.childs[tMainItemN].childs[tLangNumber].childs[tRealmNumber], tLangNumber, tRealmNumber)
 					}
@@ -906,7 +1101,83 @@ return
 ;------------------------------------------------------------------------------------------
 ; Checks
 ;------------------------------------------------------------------------------------------
+IsHardcoreCharCreationWarning()
+{
 
+}
+
+;------------------------------------------------------------------------------------------
+IsRealmQueue()
+{
+	rReturnValue := true
+
+	tmpUI := UiToScreenNEW(9799, 450)
+
+		MouseMove, tmpUI.X, tmpUI.Y, 0
+		sleep, 100
+
+
+	tRGBColor := GetColorAtUiPos(9799, 450)
+
+	;MsgBox % tRGBColor.r . " " . tRGBColor.g . " " . tRGBColor.b
+
+	if (IsColorRange(tRGBColor.r, 255) = true and IsColorRange(tRGBColor.g, 0) = true and IsColorRange(tRGBColor.b, 0) = true)
+	{
+		;rReturnValue := true
+	}
+	else
+	{
+		rReturnValue := false
+	}
+
+	tmpUI := UiToScreenNEW(10194, 450)
+
+		MouseMove, tmpUI.X, tmpUI.Y, 0
+		sleep, 100
+
+
+	tRGBColor := GetColorAtUiPos(10194, 450)
+	if (IsColorRange(tRGBColor.r, 255) = true and IsColorRange(tRGBColor.g, 0) = true and IsColorRange(tRGBColor.b, 0) = true)
+	{
+		;rReturnValue := true
+	}
+	else
+	{
+		rReturnValue := false
+	}
+
+	tmpUI := UiToScreenNEW(445, 450)
+
+		MouseMove, tmpUI.X, tmpUI.Y, 0
+		sleep, 100
+
+
+	tRGBColor := GetColorAtUiPos(445, 450)
+	if (IsColorRange(tRGBColor.r, 0) = true and IsColorRange(tRGBColor.g, 20) = true and IsColorRange(tRGBColor.b, 0) = true)
+	{
+		;rReturnValue := true
+	}
+	else
+	{
+		rReturnValue := false
+	}
+
+	if(rReturnValue == true)
+	{
+		global gInQueue := true
+		gIsInitializing = false
+	}
+	else
+	{
+		global gInQueuePlayed := false
+		global gInQueue := false
+	}
+
+	return rReturnValue
+
+}
+
+;------------------------------------------------------------------------------------------
 IsColorRange(aTestColorValue, aCompareColorValue)
 {
 	if(aTestColorValue >= (aCompareColorValue - 2) and aTestColorValue <= (aCompareColorValue + 2))
@@ -923,7 +1194,7 @@ IsWoWWindowFocus()
 {
 	rReturnValue := false
 	SetTitleMatchMode, 3
-	If(WinActive("World of Warcraft"))
+	If(WinActive("World of Warcraft") || WinActive("WORLD OF WARCRAFT"))
 	{
 		rReturnValue := true
 	}
@@ -1060,6 +1331,21 @@ IsRealmSelectionScreen()
 	tRGBColorTitleBackdrop := GetColorAtUiPos(9952, 126)
 	tRGBColorListBackdrop := GetColorAtUiPos(404, 145)
 	if ((IsColorRange(tRGBColorTitleBackdrop.r, 0) = true and IsColorRange(tRGBColorTitleBackdrop.g, 56) = true and IsColorRange(tRGBColorTitleBackdrop.b, 0) = true) and (IsColorRange(tRGBColorListBackdrop.r, 40) = true and IsColorRange(tRGBColorListBackdrop.g, 0) = true and IsColorRange(tRGBColorListBackdrop.b, 0) = true))
+	{
+		rReturnValue := true
+	}
+
+	gIgnoreKeyPress := false
+	return rReturnValue
+}
+;------------------------------------------------------------------------------------------
+IsRealmListScrollbar()
+{
+	gIgnoreKeyPress := true
+	rReturnValue := false
+
+	tRGBColorScrollbarBackdrop := GetColorAtUiPos(-335, 324)
+	if ((IsColorRange(tRGBColorScrollbarBackdrop.r, 15) = true and IsColorRange(tRGBColorScrollbarBackdrop.g, 0) = true and IsColorRange(tRGBColorScrollbarBackdrop.b, 0) = true))
 	{
 		rReturnValue := true
 	}
@@ -1426,10 +1712,11 @@ SwitchToMode0()
 ;------------------------------------------------------------------------------------------
 SwitchToMode1()
 {
-		gNumberOfCharsOnCurrentRealm := -1
-		mode = 1
-		PlayUtterance("switched_to_login_mode")
-		sleep, 1500
+	global gInQueuePlayed := false
+	gNumberOfCharsOnCurrentRealm := -1
+	mode = 1
+	PlayUtterance("switched_to_login_mode")
+	sleep, 1500
 }
 
 ;------------------------------------------------------------------------------------------
@@ -1781,6 +2068,13 @@ PlayUtterance(menuName)
 		,Whitemane:"00017_sku_en_eu.mp3"
 		,Windseeker:"00038_sku_en_eu.mp3"
 		,Yojamba:"00043_sku_en_eu.mp3"
+		,hardcore :"00001_270823__hardcore.mp3"
+		,normal :"00002_270823__normal.mp3"
+		,nek_rosh :"00003_270823__nek_rosh.mp3"
+		,stitches :"00004_270823__stitches.mp3"
+		,server_full_waiting_in_queue :"00005_270823__server_full_waiting_in_queue.mp3"
+		,defias_pillager :"00006_270823__defias_pillager.mp3"
+		,skull_rock :"00007_270823__skull_rock.mp3"
 		,Zandalar_Tribe:"00070_sku_en_eu.mp3"}
 
 	;MsgBox % menuName "`n" soundFiles[menuName] "`n" soundFiles1[menuName] "`n" soundFiles2[menuName] "`n"
@@ -2000,6 +2294,13 @@ EnterCharacterNameHandler()
 			Pause
 			return
 		}
+		WaitForX(1, 500)
+
+		;silently click the hardcore warning away
+		tmp := UiToScreenNEW(9942, 555)
+		MouseMove, tmp.X, tmp.Y, 0
+		WaitForX(1, 500)
+		Send {Click}
 		WaitForX(1, 500)
 
 		if(IsCharSelectionScreen() = true)

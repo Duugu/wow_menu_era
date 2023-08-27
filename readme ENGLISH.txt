@@ -45,6 +45,10 @@ After logging in, the script automatically switches to "Play" mode. When logging
 RELEASE NOTES
 
 Release notes:
+	4.3
+		- Updated the server names lists with the released hardcore servers
+		- Script is now handeling login queues. If you are queued for login on starting the game or switching to another server, the script will let you know. It then will play a constant blip sound every five seconds, until you made it through the queue and are on the character selection screen. While in the queue there is only one entry under the main menu: to switch to another server (that hopefully has no queue).
+
 	4.2
 		- Update for Classic Era servers
 	3.13

@@ -41,6 +41,9 @@ Nach dem Einloggen schaltet das Skript automatisch auf "Spielen". Beim Ausloggen
 ----------------------------------------------------------------------------------------
 
 Veröffentlichungshinweise:
+	4.3
+		- Servernamenliste for classic hardcore server aktualisiert
+		- Das Skript kann jetzt mit Loginwarteschlangen umgehen. Wenn du beim Start des Spiels oder beim Serverwechsel in einer Loginwarteschlange landest, sagt das Skript bescheid. Es spielt dann alle 5 Sekunden den bekannten Blip Sound ab, bis du es durch die Warteschlange zur Characterauswahlseite geschafft hast. Wärend du in der Loginwarteschlange bist gibt es unter dem Hauptmenu nur ein Untermenü: zu einem anderen Server wechsel (der hoffentlich dann keine Warteschlange hat).
 	4.2
 		- Update für Classic Ära server
 	3.13
