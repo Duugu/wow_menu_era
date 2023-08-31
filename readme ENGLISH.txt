@@ -45,6 +45,11 @@ After logging in, the script automatically switches to "Play" mode. When logging
 RELEASE NOTES
 
 Release notes:
+	4.4
+		- Fixed an issue with hardcore warning on character creation. Should now be automatically clicked away by the script
+		- Fixed an issue with creating troll characters with no class submenu
+		- Again tried to fix the not working auto acceptance of the social contract. Script should auto accept the contract now. If not, I am officially out of ideas.
+
 	4.3
 		- Updated the server names lists with the released hardcore servers
 		- Script is now handeling login queues. If you are queued for login on starting the game or switching to another server, the script will let you know. It then will play a constant blip sound every five seconds, until you made it through the queue and are on the character selection screen. While in the queue there is only one entry under the main menu: to switch to another server (that hopefully has no queue).

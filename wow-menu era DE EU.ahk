@@ -229,45 +229,21 @@ AcceptContract()
 {
 	tmp := UiToScreenNEW(9999, 195)
 	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 500
+	sleep, 2000
 	Loop 5
 		Click, WheelDown
 
-	sleep, 500
-	tmp := UiToScreenNEW(9950, 439)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
-	sleep, 50
-	tmp := UiToScreenNEW(9950, 459)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
-	sleep, 50
-	tmp := UiToScreenNEW(9950, 479)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
-	sleep, 50
-	tmp := UiToScreenNEW(9950, 499)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
-	sleep, 50
-	tmp := UiToScreenNEW(9950, 519)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
-	sleep, 50
-	tmp := UiToScreenNEW(9950, 539)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
-	sleep, 50
-	tmp := UiToScreenNEW(9950, 559)
-	MouseMove, tmp.X, tmp.Y, 0
-	sleep, 50
-	Send {Click}
+	sleep, 1000
+	ty := 439
+	Loop, 34
+	{
+		tmp := UiToScreenNEW(9950, ty)
+		MouseMove, tmp.X, tmp.Y, 0
+		WaitForX(1, 200)
+		Send {Click}
+		ty := ty + 3
+	}
+
 }
 
 ;------------------------------------------------------------------------------------------
@@ -1197,7 +1173,11 @@ IsWoWWindowFocus()
 {
 	rReturnValue := false
 	SetTitleMatchMode, 3
-	If(WinActive("World of Warcraft") || WinActive("WORLD OF WARCRAFT"))
+	If(WinActive("World of Warcraft"))
+	{
+		rReturnValue := true
+	}
+	If(WinActive("WORLD OF WARCRAFT"))
 	{
 		rReturnValue := true
 	}
@@ -2287,11 +2267,17 @@ EnterCharacterNameHandler()
 		WaitForX(1, 500)
 
 		;silently click the hardcore warning away
-		tmp := UiToScreenNEW(9942, 555)
-		MouseMove, tmp.X, tmp.Y, 0
-		WaitForX(1, 500)
-		Send {Click}
-		WaitForX(1, 500)
+		sleep, 1000
+		ty := 555
+		Loop, 34
+		{
+			tmp := UiToScreenNEW(9942, ty)
+			MouseMove, tmp.X, tmp.Y, 0
+			WaitForX(1, 200)
+			Send {Click}
+			ty := ty + 3
+		}
+
 
 
 		if(IsCharSelectionScreen() = true)
@@ -2866,22 +2852,3 @@ join(strArray, depth)
 	}
 	return s
 }
-
-
-;------------------------------------------------------------------------------------------
-Numpad3::
-	tmp := UiToScreenNEW(450,636)
-	MouseMove, tmp.X, tmp.Y, 0
-return
-
-
-;------------------------------------------------------------------------------------------
-Numpad4::
-	tmp := UiToScreenNEW(9827,636)
-	MouseMove, tmp.X, tmp.Y, 0
-return
-;------------------------------------------------------------------------------------------
-Numpad5::
-	tmp := UiToScreenNEW(9877,636)
-	MouseMove, tmp.X, tmp.Y, 0
-return
