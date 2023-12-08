@@ -41,6 +41,9 @@ Nach dem Einloggen schaltet das Skript automatisch auf "Spielen". Beim Ausloggen
 ----------------------------------------------------------------------------------------
 
 Veröffentlichungshinweise:
+	4.5
+		- Realmliste für Season of Discovery aktualisiert.
+
 	4.4
 		- Fixed an issue with hardcore warning on character creation. Should now be automatically clicked away by the script
 		- Fixed an issue with creating troll characters with no class submenu

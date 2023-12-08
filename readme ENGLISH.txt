@@ -45,6 +45,9 @@ After logging in, the script automatically switches to "Play" mode. When logging
 RELEASE NOTES
 
 Release notes:
+	4.5
+		- Updated the realms list for Season of Discovery.
+
 	4.4
 		- Fixed an issue with hardcore warning on character creation. Should now be automatically clicked away by the script
 		- Fixed an issue with creating troll characters with no class submenu

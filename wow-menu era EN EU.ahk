@@ -2046,6 +2046,23 @@ PlayUtterance(menuName)
 		,skull_rock :"00007_270823__skull_rock.mp3"
 		,Zandalar_Tribe:"00070_sku_en_eu.mp3"}
 
+	soundFiles3 := {classic_era:"00001_070823_en_Classic_Era.mp3"
+		,seasonal:"00002_070823_en_Seasonal.mp3"
+		,lava_lash:"00003_070823_en_Lava_Lash.mp3"
+		,chaos_bolt:"00004_070823_en_Chaos_Bolt.mp3"
+		,crusader_strike:"00005_070823_en_Crusader_Strike.mp3"
+		,lone_wolf:"00006_070823_en_Lone_Wolf.mp3"
+		,wild_growth:"00007_070823_en_Wild_Growth.mp3"
+		,living_flame:"00008_070823_en_Living_Flame.mp3"
+		,penance_au:"00009_070823_en_Penance_(AU).mp3"
+		,chaos_bolt:"00010_070823_en_Chaos_Bolt.mp3"
+		,lava_lash:"00011_070823_en_Lava_Lash.mp3"
+		,shadowstrike_au:"00012_070823_en_Shadowstrike_(AU).mp3"
+		,living_flame:"00013_070823_en_Living_Flame.mp3"
+		,lone_wolf:"00014_070823_en_Lone_Wolf.mp3"
+		,wild_growth:"00015_070823_en_Wild_Growth.mp3"
+		,crusader_strike:"00016_070823_en_Crusader_Strike.mp3"}
+
 	if(soundFiles[menuName] != "")
 	{
 		SoundPlay, % A_WorkingDir . "\soundfiles\" . soundFiles[menuName]
@@ -2057,6 +2074,10 @@ PlayUtterance(menuName)
 	else if(soundFiles2[menuName] != "")
 	{
 		SoundPlay, % A_WorkingDir . "\soundfiles\" . soundFiles2[menuName]
+	}
+	else if(soundFiles3[menuName] != "")
+	{
+		SoundPlay, % A_WorkingDir . "\soundfiles\" . soundFiles3[menuName]
 	}
 }
 
